@@ -1,0 +1,9 @@
+name: push-sleep
+on:
+  push:
+    branches-ignore: [main]
+jobs:
+  sleep:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sleep 600
