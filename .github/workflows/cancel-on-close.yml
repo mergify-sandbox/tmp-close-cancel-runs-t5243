@@ -13,6 +13,7 @@ jobs:
       HEAD_REF: ${{ github.head_ref }}
     steps:
       - run: |
-          gh run list --repo "$GITHUB_REPOSITORY" --branch "$HEAD_REF" --json databaseId,status \
-            --jq '.[]|select(.status!="completed")|.databaseId' \
+          gh run list --repo "$GITHUB_REPOSITORY" --branch "$HEAD_REF" --limit 100 \
+            --json databaseId,status \
+            --jq ".[] | select(.status != \"completed\" and .databaseId != $GITHUB_RUN_ID) | .databaseId" \
             | xargs -r -n1 gh run cancel --repo "$GITHUB_REPOSITORY"
