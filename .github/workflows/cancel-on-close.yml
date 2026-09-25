@@ -1,0 +1,18 @@
+name: cancel-mergify-queue-runs
+on:
+  pull_request:
+    types: [closed]
+permissions:
+  actions: write
+jobs:
+  cancel:
+    if: startsWith(github.head_ref, 'mergify/merge-queue/') && github.event.pull_request.merged == false
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      HEAD_REF: ${{ github.head_ref }}
+    steps:
+      - run: |
+          gh run list --repo "$GITHUB_REPOSITORY" --branch "$HEAD_REF" --json databaseId,status \
+            --jq '.[]|select(.status!="completed")|.databaseId' \
+            | xargs -r -n1 gh run cancel --repo "$GITHUB_REPOSITORY"
